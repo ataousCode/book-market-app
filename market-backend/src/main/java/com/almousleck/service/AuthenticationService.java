@@ -49,7 +49,7 @@ public class AuthenticationService {
             throw new UserTakenException("Email already in use");
         }
         var userRole = roleRepository.findByName("ROLE_USER")
-                .orElseThrow(() -> new RuntimeException("Role not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
         var user = User.builder()
                 .firstname(request.getFirstname())
                 .lastname(request.getLastname())
@@ -82,13 +82,13 @@ public class AuthenticationService {
 
     public void activateAccount(String token) throws MessagingException {
         Token savedToken = tokenRepository.findByToken(token)
-                .orElseThrow(() -> new ResourceNotFoundException("Invalid token"));
+                .orElseThrow(() -> new TokenExpiredException("Invalid token"));
         if (LocalDateTime.now().isAfter(savedToken.getExpiresAt())) {
             sendValidationEmail(savedToken.getUser());
             throw new TokenExpiredException("Ops! activation failed token has expired, A new token has been send to your email.");
         }
         var user = userRepository.findById(savedToken.getUser().getId())
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         user.setEnabled(true);
         userRepository.save(user);
 
