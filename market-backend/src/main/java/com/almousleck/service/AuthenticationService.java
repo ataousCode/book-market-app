@@ -4,6 +4,9 @@ import com.almousleck.email.EmailService;
 import com.almousleck.email.EmailTemplateName;
 import com.almousleck.entites.Token;
 import com.almousleck.entites.User;
+import com.almousleck.exception.ResourceNotFoundException;
+import com.almousleck.exception.TokenExpiredException;
+import com.almousleck.exception.UserTakenException;
 import com.almousleck.jwt.JwtService;
 import com.almousleck.repositories.RoleRepository;
 import com.almousleck.repositories.TokenRepository;
@@ -42,6 +45,9 @@ public class AuthenticationService {
     private String activationUrl;
 
     public void  register(RegistrationRequest request) throws MessagingException {
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new UserTakenException("Email already in use");
+        }
         var userRole = roleRepository.findByName("ROLE_USER")
                 .orElseThrow(() -> new RuntimeException("Role not found"));
         var user = User.builder()
@@ -76,10 +82,10 @@ public class AuthenticationService {
 
     public void activateAccount(String token) throws MessagingException {
         Token savedToken = tokenRepository.findByToken(token)
-                .orElseThrow(() -> new RuntimeException("Invalid token"));
+                .orElseThrow(() -> new ResourceNotFoundException("Invalid token"));
         if (LocalDateTime.now().isAfter(savedToken.getExpiresAt())) {
             sendValidationEmail(savedToken.getUser());
-            throw new RuntimeException("Activation failed token has expired, A new token has been send to your email.");
+            throw new TokenExpiredException("Ops! activation failed token has expired, A new token has been send to your email.");
         }
         var user = userRepository.findById(savedToken.getUser().getId())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
@@ -107,7 +113,7 @@ public class AuthenticationService {
         var token = Token.builder()
                 .token(generatedToken)
                 .createdAt(LocalDateTime.now())
-                .expiresAt(LocalDateTime.now().plusMinutes(30))
+                .expiresAt(LocalDateTime.now().plusMinutes(1))
                 .user(user).build();
         tokenRepository.save(token);
         return generatedToken;

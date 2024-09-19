@@ -1,4 +1,9 @@
 spring:
+  mvc:
+    throw-exception-if-no-handler-found: true
+  web:
+    resources:
+      add-mappings: false
   datasource:
     url: jdbc:postgresql://localhost:5432/book_mart_app
     username: postgres
@@ -39,6 +44,10 @@ springdoc:
   default-produces-media-type: application/json
 
 server:
+  error:
+    include-message: always
+    include-binding-errors: always
+    include-stacktrace: on_param
   servlet:
     context-path: /api/v1/
 
