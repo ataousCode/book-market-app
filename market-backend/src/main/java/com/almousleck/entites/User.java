@@ -2,16 +2,13 @@ package com.almousleck.entites;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import lombok.experimental.SuperBuilder;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.security.Principal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,10 +16,9 @@ import java.util.stream.Collectors;
 @Getter @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
+@SuperBuilder
 @Entity
 @Table(name = "_user")
-@EntityListeners(AuditingEntityListener.class)
 public class User extends BaseEntity implements UserDetails, Principal {
     private String firstname;
     private String lastname;
@@ -34,6 +30,10 @@ public class User extends BaseEntity implements UserDetails, Principal {
     private boolean enabled;
 
     //todo: implements relationship
+
+    @OneToMany(mappedBy = "user")
+    private List<BookTransactionHistory> histories;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_role",
@@ -41,6 +41,9 @@ public class User extends BaseEntity implements UserDetails, Principal {
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     private List<Role> roles;
+
+    @OneToMany(mappedBy = "owner")
+    private List<Book> books;
 
     @Override
     public String getName() {

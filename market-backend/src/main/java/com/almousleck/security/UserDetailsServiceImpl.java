@@ -1,5 +1,6 @@
 package com.almousleck.security;
 
+import com.almousleck.exception.ResourceNotFoundException;
 import com.almousleck.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,6 +16,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return userRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("user not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("user not found"));
     }
 }
