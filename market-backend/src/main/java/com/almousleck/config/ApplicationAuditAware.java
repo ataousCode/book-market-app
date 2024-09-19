@@ -1,6 +1,6 @@
 package com.almousleck.config;
 
-import com.almousleck.entites.User;
+import com.almousleck.domain.User;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;

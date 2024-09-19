@@ -1,6 +1,6 @@
 package com.almousleck.repositories;
 
-import com.almousleck.entites.Role;
+import com.almousleck.domain.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

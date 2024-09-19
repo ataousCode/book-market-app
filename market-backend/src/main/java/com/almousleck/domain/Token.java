@@ -1,4 +1,4 @@
-package com.almousleck.entites;
+package com.almousleck.domain;
 
 import jakarta.persistence.*;
 import lombok.*;

@@ -2,8 +2,8 @@ package com.almousleck.service;
 
 import com.almousleck.email.EmailService;
 import com.almousleck.email.EmailTemplateName;
-import com.almousleck.entites.Token;
-import com.almousleck.entites.User;
+import com.almousleck.domain.Token;
+import com.almousleck.domain.User;
 import com.almousleck.exception.ResourceNotFoundException;
 import com.almousleck.exception.TokenExpiredException;
 import com.almousleck.exception.UserTakenException;
@@ -20,7 +20,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
