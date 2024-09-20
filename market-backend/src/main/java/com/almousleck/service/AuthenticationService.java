@@ -22,11 +22,22 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+
+import static com.almousleck.constant.MessageConstant.PHOTO_DIRECTORY;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 @Service
 @RequiredArgsConstructor
@@ -42,6 +53,10 @@ public class AuthenticationService {
 
     @Value("${application.mailing.frontend.activation-url}")
     private String activationUrl;
+
+    public List<User> fetchUsers() {
+        return userRepository.findAll();
+    }
 
     public void  register(RegistrationRequest request) throws MessagingException {
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
@@ -112,7 +127,7 @@ public class AuthenticationService {
         var token = Token.builder()
                 .token(generatedToken)
                 .createdAt(LocalDateTime.now())
-                .expiresAt(LocalDateTime.now().plusMinutes(1))
+                .expiresAt(LocalDateTime.now().plusMinutes(15))
                 .user(user).build();
         tokenRepository.save(token);
         return generatedToken;
@@ -128,6 +143,39 @@ public class AuthenticationService {
         }
         return activationCode.toString();
     }
+
+    public User getUserById(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+    }
+
+    public String uploadProfile(Long id, MultipartFile file) {
+        log.info("Saving profile picture for user with id: {}", id);
+        User user = getUserById(id);
+        String photoUrl = profileFunction.apply(id, file);
+        user.setProfilePicture(photoUrl);
+        userRepository.save(user);
+        return photoUrl;
+    }
+
+    private final Function<String, String> fileExtension = filename -> Optional.of(filename)
+            .filter(name -> name.contains("."))
+            .map(name -> "." + name.substring(filename.lastIndexOf(".") + 1))
+            .orElse(".png");
+
+    private final BiFunction<Long, MultipartFile, String> profileFunction = (id, image) -> {
+        String filename = id + fileExtension.apply(image.getOriginalFilename());
+        try {
+            Path fileStorageLocation = Paths.get(PHOTO_DIRECTORY).toAbsolutePath().normalize();
+            if (!Files.exists(fileStorageLocation))
+                Files.createDirectories(fileStorageLocation);
+            Files.copy(image.getInputStream(), fileStorageLocation.resolve(filename), REPLACE_EXISTING);
+            return ServletUriComponentsBuilder.fromCurrentContextPath()
+                    .path("/auth/profile/" + filename).toUriString();
+        } catch (Exception ex) {
+            throw new ResourceNotFoundException("Ops! unable to save the file");
+        }
+    };
 
 
 

@@ -1,6 +1,7 @@
 package com.almousleck.constant;
 
 public class MessageConstant {
+    public static final  String PHOTO_DIRECTORY = System.getProperty("user.home") + "/Downloads/uploads/";
     //todo 5 days expressed in milliseconds
     public static final long EXPIRATION_TIME = 432_000_000;
     public static final String TOKEN_PREFIX = "Bearer ";

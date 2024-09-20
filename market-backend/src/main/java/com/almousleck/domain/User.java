@@ -28,6 +28,7 @@ public class User extends BaseEntity implements UserDetails, Principal {
     private String password;
     private boolean accountLocked;
     private boolean enabled;
+    private String profilePicture;
 
     //todo: implements relationship
 
