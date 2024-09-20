@@ -56,6 +56,9 @@ application:
     jwt:
       secret-key: dfasdfasdgasdgasdgasdgnasdiogjfaiosdhfgashidfas
       expiration: 86400000
+  file:
+    uploads:
+      photo-output-path: ./uploads
 
   mailing:
     frontend:
