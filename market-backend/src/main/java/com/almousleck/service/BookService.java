@@ -3,6 +3,7 @@ package com.almousleck.service;
 import com.almousleck.domain.Book;
 import com.almousleck.domain.BookTransactionHistory;
 import com.almousleck.domain.User;
+import com.almousleck.exception.OperationNotPermittedException;
 import com.almousleck.exception.ResourceNotFoundException;
 import com.almousleck.mapper.BookMapper;
 import com.almousleck.mapper.BookSpecification;
@@ -21,7 +22,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+import java.nio.file.AccessDeniedException;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static com.almousleck.mapper.BookSpecification.withOwnerId;
@@ -42,7 +45,6 @@ public class BookService {
         return bookRepository.save(book).getId();
     }
 
-
     public BookResponse findById(Long bookId) {
         return bookRepository.findById(bookId)
                 .map(bookMapper::toBookResponse)
@@ -51,14 +53,12 @@ public class BookService {
 
     public PageResponse<BookResponse> findAllBooks(int page, int size, Authentication authentication) {
         User user = (User) authentication.getPrincipal();
-
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         Page<Book> books = bookRepository.findAllDisplayableBooks(pageable, user.getId());
 
         List<BookResponse> bookResponses = books.stream()
                 .map(bookMapper::toBookResponse)
                 .toList();
-
         return new PageResponse<>(bookResponses,
                 books.getNumber(),
                 books.getSize(),
@@ -89,7 +89,6 @@ public class BookService {
         );
     }
 
-
     public PageResponse<BorrowedBookResponse> findAllBorrowedBooks(int page, int size, Authentication authentication) {
         User user = (User) authentication.getPrincipal();
         Pageable pageable  = PageRequest.of(page, size, Sort.by("createdAt").descending());
@@ -100,7 +99,6 @@ public class BookService {
                 .stream()
                 .map(bookMapper::toBorrowedBookResponse)
                 .toList();
-
         return new PageResponse<>(
                 bookResponses,
                 allBorrowedBooks.getNumber(),
@@ -112,18 +110,15 @@ public class BookService {
         );
     }
 
-
     public PageResponse<BorrowedBookResponse> findAllReturnedBooks(int page, int size, Authentication authentication) {
         User user = (User) authentication.getPrincipal();
         Pageable pageable  = PageRequest.of(page, size, Sort.by("createdAt").descending());
-
         Page<BookTransactionHistory> allBorrowedBooks = bookTransactionHistoryRepository
                 .findAllReturnedBooks(pageable, user.getId());
         List<BorrowedBookResponse> bookResponses = allBorrowedBooks
                 .stream()
                 .map(bookMapper::toBorrowedBookResponse)
                 .toList();
-
         return new PageResponse<>(
                 bookResponses,
                 allBorrowedBooks.getNumber(),
@@ -135,4 +130,80 @@ public class BookService {
         );
     }
 
+    public Long updateSharableStatus(Long bookId, Authentication authentication) {
+        Book book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new ResourceNotFoundException("Book not found with the id: " + bookId));
+        User user = (User) authentication.getPrincipal();
+        if (!Objects.equals(book.getOwner().getId(), user.getId()))
+            throw new OperationNotPermittedException("Ops! you cannot update books shareable status.");
+        book.setShareable(!book.isShareable());
+        bookRepository.save(book);
+        return bookId;
+    }
+
+    public Long updateArchivedStatus(Long bookId, Authentication authentication) {
+        Book book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new ResourceNotFoundException("Book not found with the id: " + bookId));
+        User user = (User) authentication.getPrincipal();
+
+        if (!Objects.equals(book.getOwner().getId(), authentication.getName()))
+            throw new OperationNotPermittedException("Ops! you cannot update books archived status.");
+        book.setArchived(!book.isArchived());
+        bookRepository.save(book);
+        return bookId;
+    }
+
+    public Long borrowBook(Long bookId, Authentication authentication) {
+        Book book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new ResourceNotFoundException("Book not found with the id: " + bookId));
+
+        if (book.isArchived() || !book.isShareable())
+            throw new OperationNotPermittedException("Ops! the requested book is not available to borrow.");
+
+        User user = (User) authentication.getPrincipal();
+        if (Objects.equals(book.getOwner().getId(), user.getId()))
+            throw new OperationNotPermittedException("Ops! It seems like you are the owner of the book.");
+
+        final boolean isAlreadyBorrowed = bookTransactionHistoryRepository.isAlreadyBorrowedByUser(bookId, user.getId());
+        if (isAlreadyBorrowed)
+            throw new OperationNotPermittedException("The requested book is already borrowed.");
+        BookTransactionHistory bookTransactionHistory = BookTransactionHistory
+                .builder()
+                .user(user)
+                .book(book)
+                .returned(false)
+                .returnApproved(false)
+                .build();
+        return bookTransactionHistoryRepository.save(bookTransactionHistory).getId() ;
+    }
+
+    public Long returnBorrowBook(Long bookId, Authentication authentication) {
+        Book book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new ResourceNotFoundException("Book not found with the id: " + bookId));
+        if (book.isArchived() || !book.isShareable())
+            throw new OperationNotPermittedException("Ops! the requested book is not available to borrow.");
+        User user = (User) authentication.getPrincipal();
+        if (Objects.equals(book.getOwner().getId(), user.getId()))
+            throw new OperationNotPermittedException("Ops! It seems like you are the owner of the book.");
+        BookTransactionHistory bookTransactionHistory = bookTransactionHistoryRepository
+                .findBookIdAndUserId(bookId, user.getId())
+                .orElseThrow(() -> new OperationNotPermittedException("You did not borrow this book: " + bookId));
+        bookTransactionHistory.setReturned(true);
+        return bookTransactionHistoryRepository.save(bookTransactionHistory).getId();
+    }
+
+    public Long approveReturnBorrowBook(Long bookId, Authentication authentication) {
+        Book book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new ResourceNotFoundException("Book not found with the id: " + bookId));
+        if (book.isArchived() || !book.isShareable())
+            throw new OperationNotPermittedException("Ops! the requested book is not available to borrow.");
+        User user = (User) authentication.getPrincipal();
+        if (Objects.equals(book.getOwner().getId(), user.getId()))
+            throw new OperationNotPermittedException("Ops! It seems like you are the owner of the book.");
+        BookTransactionHistory bookTransactionHistory = bookTransactionHistoryRepository
+                .findByBookIdAndOwnerId(bookId, user.getId())
+                .orElseThrow(() -> new OperationNotPermittedException("The book is not returned yet. You can approve."));
+        bookTransactionHistory.setReturnApproved(true);
+        return bookTransactionHistoryRepository.save(bookTransactionHistory).getId();
+    }
 }

@@ -31,7 +31,7 @@ public class GlobalExceptionHandler {
     private static final String INCORRECT_CREDENTIALS = "Username / password incorrect. PLease try again";
     private static final String ACCOUNT_DISABLED = "Your account is disable. Please activate your account or if this is an error, please contact the administration";
     private static final String ERROR_PROCESSING_FILE = "Error occurred while processing file";
-    private static final String NOT_ENOUGH_PERMISSION = "You do not have enough permission";
+    private static final String NOT_ENOUGH_PERMISSION = "Ops! you have no enough permission to process this request";
 
     @ExceptionHandler(DisabledException.class)
     public ResponseEntity<ErrorResponse> accountDisabledException() {
@@ -65,6 +65,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> resourceNotFound(ResourceNotFoundException exception) {
+        return createHttpResponse(BAD_REQUEST, exception.getMessage());
+    }
+
+    @ExceptionHandler(OperationNotPermittedException.class)
+    public ResponseEntity<ErrorResponse> notPermittedException(OperationNotPermittedException exception) {
         return createHttpResponse(BAD_REQUEST, exception.getMessage());
     }
 
