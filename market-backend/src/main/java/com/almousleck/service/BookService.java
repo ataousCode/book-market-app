@@ -6,7 +6,6 @@ import com.almousleck.domain.User;
 import com.almousleck.exception.OperationNotPermittedException;
 import com.almousleck.exception.ResourceNotFoundException;
 import com.almousleck.mapper.BookMapper;
-import com.almousleck.mapper.BookSpecification;
 import com.almousleck.repositories.BookRepository;
 import com.almousleck.repositories.BookTransactionHistoryRepository;
 import com.almousleck.request.BookRequest;
@@ -22,10 +21,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
-import java.nio.file.AccessDeniedException;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import static com.almousleck.mapper.BookSpecification.withOwnerId;
 
@@ -144,7 +141,7 @@ public class BookService {
     public Long updateArchivedStatus(Long bookId, Authentication authentication) {
         Book book = bookRepository.findById(bookId)
                 .orElseThrow(() -> new ResourceNotFoundException("Book not found with the id: " + bookId));
-        User user = (User) authentication.getPrincipal();
+        //todo: User user = (User) authentication.getPrincipal();
 
         if (!Objects.equals(book.getOwner().getId(), authentication.getName()))
             throw new OperationNotPermittedException("Ops! you cannot update books archived status.");
