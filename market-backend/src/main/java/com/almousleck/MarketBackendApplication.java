@@ -1,7 +1,7 @@
 package com.almousleck;
 
 import com.almousleck.domain.Role;
-import com.almousleck.repositories.RoleRepository;
+import com.almousleck.repository.RoleRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

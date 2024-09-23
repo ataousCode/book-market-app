@@ -5,12 +5,14 @@ import com.almousleck.response.BookResponse;
 import com.almousleck.response.BorrowedBookResponse;
 import com.almousleck.response.PageResponse;
 import com.almousleck.service.BookService;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -90,6 +92,16 @@ public class BookController {
     @PatchMapping("/borrow/return/approve/{bookId}")
     public ResponseEntity<Long> approveReturnBorrowBook(@PathVariable Long bookId, Authentication authentication) {
         return ResponseEntity.ok(bookService.approveReturnBorrowBook(bookId, authentication));
+    }
+
+    @PostMapping(value = "/cover/{bookId}", consumes = "multipart/form-data")
+    public ResponseEntity<?> uploadBookCoverPicture(
+            @PathVariable("bookId") Long bookId,
+            @Parameter()
+            @RequestPart("file") MultipartFile file,
+            Authentication authentication) {
+        bookService.uploadBookCoverPicture(bookId, file, authentication);
+        return ResponseEntity.accepted().build();
     }
 
 

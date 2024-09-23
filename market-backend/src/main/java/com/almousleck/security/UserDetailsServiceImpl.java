@@ -1,7 +1,7 @@
 package com.almousleck.security;
 
 import com.almousleck.exception.ResourceNotFoundException;
-import com.almousleck.repositories.UserRepository;
+import com.almousleck.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

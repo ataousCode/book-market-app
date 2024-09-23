@@ -6,12 +6,13 @@ import com.almousleck.domain.User;
 import com.almousleck.exception.OperationNotPermittedException;
 import com.almousleck.exception.ResourceNotFoundException;
 import com.almousleck.mapper.BookMapper;
-import com.almousleck.repositories.BookRepository;
-import com.almousleck.repositories.BookTransactionHistoryRepository;
+import com.almousleck.repository.BookRepository;
+import com.almousleck.repository.BookTransactionHistoryRepository;
 import com.almousleck.request.BookRequest;
 import com.almousleck.response.BookResponse;
 import com.almousleck.response.BorrowedBookResponse;
 import com.almousleck.response.PageResponse;
+import com.almousleck.upload.FileStorageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -20,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Objects;
@@ -32,8 +34,9 @@ import static com.almousleck.mapper.BookSpecification.withOwnerId;
 public class BookService {
 
     private final BookRepository bookRepository;
-    private final BookMapper bookMapper;
     private final BookTransactionHistoryRepository bookTransactionHistoryRepository;
+    private final BookMapper bookMapper;
+    private final FileStorageService fileStorageService;
 
     public Long save(BookRequest request, Authentication authentication) {
         User user = (User) authentication.getPrincipal();
@@ -202,5 +205,14 @@ public class BookService {
                 .orElseThrow(() -> new OperationNotPermittedException("The book is not returned yet. You can approve."));
         bookTransactionHistory.setReturnApproved(true);
         return bookTransactionHistoryRepository.save(bookTransactionHistory).getId();
+    }
+
+    public void uploadBookCoverPicture(Long bookId, MultipartFile file, Authentication authentication) {
+        Book book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new ResourceNotFoundException("Book not found with the id: " + bookId));
+        User user = (User) authentication.getPrincipal();
+        var bookCover = fileStorageService.saveFile(file, user.getId());
+        book.setBookCover(bookCover);
+        bookRepository.save(book);
     }
 }

@@ -1,5 +1,6 @@
 package com.almousleck.upload;
 
+import com.almousleck.domain.Book;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.NonNull;
@@ -22,7 +23,8 @@ public class FileStorageService {
     @Value("${application.file.uploads.photo-output-path}")
     private String fileUploadPath;
 
-    public String saveFile(@NonNull MultipartFile file, @NonNull String userId) {
+    //@NonNull book,
+    public String saveFile(@NonNull MultipartFile file,  @NonNull Long userId) {
         final  String fileUploadSubPath = "users" + separator + userId;
         return uploadFile(file, fileUploadSubPath);
     }
@@ -34,7 +36,7 @@ public class FileStorageService {
         if (!targetFolder.exists()) {
             boolean folderCreated = targetFolder.mkdirs();
             if (!folderCreated) {
-                log.warn("Could not create folder {}", targetFolder);
+                log.warn("Could not create folder: {}", targetFolder);
                 return null;
             }
         }

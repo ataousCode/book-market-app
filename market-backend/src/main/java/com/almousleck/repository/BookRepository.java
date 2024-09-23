@@ -1,4 +1,4 @@
-package com.almousleck.repositories;
+package com.almousleck.repository;
 
 import com.almousleck.domain.Book;
 import org.springframework.data.domain.Page;
