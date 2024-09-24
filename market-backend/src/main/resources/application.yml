@@ -49,7 +49,7 @@ server:
     include-binding-errors: always
     include-stacktrace: on_param
   servlet:
-    context-path: /api/v1/
+    context-path: /api/v1
 
 application:
   security:
