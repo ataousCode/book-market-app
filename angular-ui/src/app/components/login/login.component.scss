@@ -1,0 +1,67 @@
+.card {
+  background-color: #1e1e2e; /* Darker card background color */
+  color: #fff; /* White text */
+  border-radius: 8px;
+  border: none;
+  padding: 20px;
+}
+
+.container {
+  height: 70vh;
+}
+
+h1 {
+  color: #fff; /* White color for heading */
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+//.form-control {
+//  background-color: #2b2b3f; /* Darker input field background */
+//  color: #fff;
+//  border: none;
+//  border-radius: 4px;
+//}.form-control {
+//  background-color: #2b2b3f; /* Darker input field background */
+//  color: #fff;
+//  border: none;
+//  border-radius: 4px;
+//}
+
+.form-control {
+  background-color: #2b2b3f; /* Dark input field background */
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+
+  &::placeholder {
+    color: #b0b0b0;
+  }
+
+  &:focus {
+    box-shadow: none;
+    border-color: #2196F3;
+  }
+}
+
+//.form-control::placeholder {
+//  color: #b0b0b0; /* Lighter placeholder color */
+//}
+
+.is-invalid {
+  border-color: #dc3545; /* Red border for invalid fields */
+}
+
+.text-danger {
+  color: #dc3545; /* Red color for validation messages */
+}
+
+.btn-primary {
+  background-color: #2196F3; /* Blue color for the sign-in button */
+  border: none;
+}
+
+a {
+  color: #b0b0b0; /* Lighter color for links */
+}

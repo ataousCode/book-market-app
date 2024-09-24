@@ -1,0 +1,68 @@
+.card {
+  background-color: #1e1e2e; /* Dark card background */
+  color: #fff;
+  border-radius: 8px;
+  border: none;
+  padding: 20px;
+}
+
+.container {
+  height: 100vh;
+}
+
+h1 {
+  color: #fff;
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.form-control {
+  background-color: #2b2b3f; /* Dark input field background */
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+
+  &::placeholder {
+    color: #b0b0b0;
+  }
+}
+
+.btn-primary {
+  background-color: #2196F3; /* Blue for the sign-in button */
+  border: none;
+}
+
+.btn-outline-light {
+  color: #fff;
+  border: 1px solid #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 0.875rem; /* Smaller text for smaller buttons */
+  padding: 6px 12px;
+}
+
+.btn-outline-light img {
+  width: 16px; /* Smaller icon */
+  margin-right: 8px;
+}
+
+a {
+  color: #b0b0b0;
+}
+
+#google-signin {
+  background-color: #333;
+  color: white;
+}
+
+#github-signin {
+  background-color: #333;
+  color: white;
+}
+
+.d-flex {
+  gap: 10px; /* Space between Google and GitHub buttons */
+}

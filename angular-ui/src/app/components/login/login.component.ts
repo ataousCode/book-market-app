@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import {AuthenticationRequest} from "../../services/models/authentication-request";
-import {register} from "../../services/fn/authentication/register";
 import { Router } from '@angular/router';
 import { AuthenticationService } from 'src/app/services/services';
 import {TokenService} from "../../services/token/token.service";
@@ -16,11 +15,15 @@ export class LoginComponent {
   errorMessage: Array<string> = [];
   submitted = false;
 
-  constructor(private router: Router, private authService: AuthenticationService,
-              private tokenService: TokenService) {}
+  constructor(private router: Router,
+              private authService: AuthenticationService,
+              private tokenService: TokenService) {
+  }
 
-  login() {
+  // method to handle from submission
+  onSubmit() {
     this.errorMessage = [];
+    // send login request
     this.authService.authenticate({
       body: this.authRequest
     }).subscribe({

@@ -5,7 +5,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import {HttpClient, HttpClientModule} from "@angular/common/http";
 import { LoginComponent } from './components/login/login.component';
-import {FormsModule} from "@angular/forms";
+import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import { RegisterComponent } from './components/register/register.component';
 import { ActivateAccountComponent } from './components/activate-account/activate-account.component';
 import {CodeInputModule} from "angular-code-input";
@@ -22,7 +22,7 @@ import {CodeInputModule} from "angular-code-input";
     AppRoutingModule,
     HttpClientModule,
     FormsModule,
-    CodeInputModule
+    CodeInputModule,
   ],
   providers: [
     HttpClient
