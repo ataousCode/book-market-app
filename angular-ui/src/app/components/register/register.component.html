@@ -6,7 +6,12 @@
       <div class="alert alert-danger" role="alert" *ngIf="errorMsg.length">
         <p *ngFor="let msg of errorMsg">{{msg}}</p>
       </div>
+
+      <div *ngIf="successMessage" class="alert alert-success" role="alert">
+        <p>{{successMessage}}</p>
+      </div>
     </div>
+
     <!-- firstname field -->
     <div class="form-group mb-3">
       <label for="firstname" class="text-white">Firstname</label>

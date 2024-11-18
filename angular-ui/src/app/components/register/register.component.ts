@@ -9,9 +9,11 @@ import {AuthenticationService} from "../../services/services/authentication.serv
   styleUrls: ['./register.component.scss']
 })
 export class RegisterComponent {
-
+  successMessage: string = '';
+  //showSuccessMessage: boolean = false;
   registerRequest: RegistrationRequest = {firstname: '', lastname: '', email: '', password: ''};
   errorMsg: Array<string> = [];
+  selectedImage: string | ArrayBuffer | null = null;
 
   constructor(private router: Router, private authService: AuthenticationService) {
   }
@@ -22,6 +24,8 @@ export class RegisterComponent {
       body: this.registerRequest
     }).subscribe({
       next: () => {
+        this.successMessage = 'Registration successful, please check your email to activate your account';
+        //this.showSuccessMessage = true;
         this.router.navigate(['activate-account']);
       },
       error: (err) => {
@@ -33,17 +37,5 @@ export class RegisterComponent {
   login() {
     this.router.navigate(['login']);
   }
-
-
-
-
-
-
-
-
-
-
-
-
 
 }
